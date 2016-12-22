@@ -1,0 +1,42 @@
+#!/bin/bash
+
+function info () {
+    echo "--> INFO: $@" 1>&2
+}
+
+function indent () {
+    cat | sed 's/^/          /' 1>&2
+}
+
+set -eu -o pipefail
+
+CONTENTS_DIR="/home/ec2-user/contents"
+mkdir -p $CONTENTS_DIR
+
+cd $CONTENTS_DIR
+info "Untaring from stdin"
+cat | tar x
+
+if [ -f "yum.txt" ]; then
+    info "yum.txt detected, installing OS dependencies"
+    for dep in $(cat yum.txt); do
+        sudo yum install -y $dep 2>&1 | indent
+    done
+else
+    info "No yum.txt detected, not installing any OS dependencies"
+fi
+
+VIRTUALENV_DIR="/home/ec2-user/venv"
+if [ -f requirements.txt ]; then
+    info "requirements.txt detected, installing Python dependencies"
+    virtualenv $VIRTUALENV_DIR 2>&1 | indent
+    $VIRTUALENV_DIR/bin/pip install -r requirements.txt 2>&1 | indent
+    cp -r $VIRTUALENV_DIR/*/python2.7/site-packages/* .
+else
+    info "No requirements.txt detected, not installing Python dependencies"
+fi
+    
+info "Zipping up contents"
+zip -r ../contents.zip . 2>&1 | indent
+
+cat ../contents.zip
