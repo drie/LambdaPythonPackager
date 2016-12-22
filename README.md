@@ -14,7 +14,7 @@ machine and the Lambda environment (e.g. your using Ubuntu or OSX).
 ## The Solution
 
 LambdaPythonPackager is a Docker Repository which uses a [LambdaLike environment](https://hub.docker.com/r/drie/lambdalike) 
-to build your code.  This makes build much more deterministic and cuts down on surprises when moving from local development 
+to build your code.  This makes builds much more deterministic and cuts down on surprises when moving from local development 
 to production.
 
 ## Usage
